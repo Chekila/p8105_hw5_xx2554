@@ -64,9 +64,50 @@ The probability that at least two people share a birthday increases with group s
 
 #### Import data files
 
+```{r, message = FALSE}
+study_raw = 
+  tibble(file_name = list.files("data")) |> 
+  mutate(data = map(str_c("data/", file_name), read_csv))
+```
+
 #### Tidy data
 
+```{r}
+study_df = 
+  study_raw |> 
+  unnest(data) |> 
+  mutate(
+    subject_id = str_remove(file_name, ".csv"),
+    arm = if_else(str_detect(file_name, "con"), "control", "experimental")
+  ) |> 
+  pivot_longer(
+    week_1:week_8,
+    names_to = "week",
+    names_prefix = "week_",
+    values_to = "observation"
+  ) |> 
+  mutate(week = as.numeric(week)) |> 
+  select(subject_id, arm, week, observation)
+
+study_df
+```
+
 #### Spaghetti plot and comments
+
+```{r}
+study_df |> 
+  ggplot(aes(x = week, y = observation, group = subject_id, color = arm)) + 
+  geom_line(linewidth = 0.7, alpha = 0.8) + 
+  scale_x_continuous(breaks = 1:8) + 
+  scale_color_manual(values = c("control" = "#4C72B0", "experimental" = "#DD8452")) + 
+  labs(
+    title = "Observations over time by study arm",
+    x = "Week",
+    y = "Observation",
+    color = "Arm"
+  )
+```
+In week 1 the two arms overlap, with observations in both groups falling in roughly the same range. Over the following weeks, observations in the control arm fluctuate without a clear trend and stay mostly between 0 and 2.5, while observations in the experimental arm increase steadily. By week 8 the two arms are completely separated, with every subject in the experimental arm having a higher observation than every subject in the control arm.
 
 ### Problem 3
 
