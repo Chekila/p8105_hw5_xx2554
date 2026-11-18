@@ -1,0 +1,45 @@
+---
+title: "P8105 Homework 5"
+author: "xx2554"
+output: github_document
+---
+
+```{r setup, message = FALSE}
+library(tidyverse)
+
+set.seed(1)
+
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+### Problem 1
+
+#### Birthday simulation function
+
+#### Run simulation for group sizes 2 to 50
+
+#### Plot and comments
+
+### Problem 2
+
+#### Import data files
+
+#### Tidy data
+
+#### Spaghetti plot and comments
+
+### Problem 3
+
+#### Simulation function
+
+#### Run simulation for all values of mu
+
+#### Power plot and comments
+
+#### Average estimate plots and comments
