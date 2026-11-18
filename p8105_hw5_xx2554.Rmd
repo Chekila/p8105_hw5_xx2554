@@ -58,6 +58,11 @@ bday_results |>
     y = "Probability that at least two people share a birthday"
   )
 ```
+```{r}
+bday_results |> 
+  filter(group_size %in% c(2, 10, 23, 30, 50)) |> 
+  knitr::kable(digits = 3)
+```
 The probability that at least two people share a birthday increases with group size, but not linearly. It is near 0 for a group of 2 and only about 0.12 for a group of 10, then rises quickly, reaching about 0.5 at a group size of 23 and about 0.7 at 30. After that the curve flattens as it approaches 1, with a probability of about 0.97 for a group of 50.
 
 ### Problem 2
@@ -156,7 +161,50 @@ power_df |>
     y = "Proportion of times the null was rejected (power)"
   )
 ```
+```{r}
+power_df |> 
+  knitr::kable(digits = 3)
+```
 Power increases with effect size. When the true mean is 0, the null is rejected in about 5% of samples, which matches the significance level. Power is low for a small effect, about 0.19 when the true mean is 1, and rises sharply to about 0.57 at 2 and 0.89 at 3. It is close to 1 for true means of 4 or larger, so the increase levels off once the effect is large relative to the error variance.
 
 
 #### Average estimate plots
+```{r}
+estimate_df = 
+  bind_rows(
+    sim_results |> 
+      group_by(mu) |> 
+      summarize(avg_estimate = mean(estimate)) |> 
+      mutate(samples = "All samples"),
+    sim_results |> 
+      filter(p.value < 0.05) |> 
+      group_by(mu) |> 
+      summarize(avg_estimate = mean(estimate)) |> 
+      mutate(samples = "Samples where null was rejected")
+  )
+
+estimate_df |> 
+  ggplot(aes(x = mu, y = avg_estimate, color = samples)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(breaks = 0:6) + 
+  scale_y_continuous(breaks = 0:6) + 
+  labs(
+    title = "Average estimate of mu by true mean",
+    x = "True value of mu",
+    y = "Average estimate of mu",
+    color = "Samples"
+  )
+```
+
+```{r}
+estimate_df |> 
+  pivot_wider(
+    names_from = samples,
+    values_from = avg_estimate
+  ) |> 
+  knitr::kable(digits = 2)
+```
+Across all samples, the average estimate is approximately equal to the true mean for every value of mu, as expected because the sample mean is an unbiased estimator.
+
+Among samples for which the null was rejected, the average estimate is not approximately equal to the true mean when the effect is small. It is about 2.2 when the true mean is 1, 2.6 when the true mean is 2, and 3.2 when the true mean is 3. This happens because the null is only rejected when the sample mean is far enough from 0, so when power is low the rejected samples are mostly those that overestimated the true mean by chance, and averaging only these samples gives a value that is too large. For true means of 4 or larger, power is close to 1, so nearly all samples are rejected and the average among them is approximately equal to the true mean. When the true mean is 0, the average among rejected samples stays near 0 because rejections occur in both directions and largely cancel.
