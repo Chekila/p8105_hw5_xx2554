@@ -139,5 +139,24 @@ sim_results =
   bind_rows(sim_mu_0)
 ```
 #### Power plot
+```{r}
+power_df = 
+  sim_results |> 
+  group_by(mu) |> 
+  summarize(power = mean(p.value < 0.05))
+
+power_df |> 
+  ggplot(aes(x = mu, y = power)) + 
+  geom_point() + 
+  geom_line() + 
+  scale_x_continuous(breaks = 0:6) + 
+  labs(
+    title = "Power of the one-sample t-test by true mean",
+    x = "True value of mu",
+    y = "Proportion of times the null was rejected (power)"
+  )
+```
+Power increases with effect size. When the true mean is 0, the null is rejected in about 5% of samples, which matches the significance level. Power is low for a small effect, about 0.19 when the true mean is 1, and rises sharply to about 0.57 at 2 and 0.89 at 3. It is close to 1 for true means of 4 or larger, so the increase levels off once the effect is large relative to the error variance.
+
 
 #### Average estimate plots
