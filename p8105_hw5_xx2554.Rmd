@@ -1,6 +1,7 @@
 ---
 title: "P8105 Homework 5"
 author: "xx2554"
+date: "2026-11-18"
 output: github_document
 ---
 
@@ -21,10 +22,43 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 ### Problem 1
 
 #### Birthday simulation function
+```{r}
+bday_sim = function(n) {
+  
+  bdays = sample(1:365, size = n, replace = TRUE)
+  
+  length(unique(bdays)) < n
+  
+}
+```
 
-#### Run simulation for group sizes 2 to 50
+
+#### Simulation across group sizes
+```{r}
+bday_results = 
+  expand_grid(
+    group_size = 2:50,
+    iter = 1:10000
+  ) |> 
+  mutate(shared = map_lgl(group_size, bday_sim)) |> 
+  group_by(group_size) |> 
+  summarize(prob = mean(shared))
+```
+
 
 #### Plot and comments
+```{r}
+bday_results |> 
+  ggplot(aes(x = group_size, y = prob)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(
+    title = "Probability of a shared birthday by group size",
+    x = "Group size",
+    y = "Probability that at least two people share a birthday"
+  )
+```
+The probability that at least two people share a birthday increases with group size, but not linearly. It is near 0 for a group of 2 and only about 0.12 for a group of 10, then rises quickly, reaching about 0.5 at a group size of 23 and about 0.7 at 30. After that the curve flattens as it approaches 1, with a probability of about 0.97 for a group of 50.
 
 ### Problem 2
 
@@ -38,8 +72,10 @@ theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
 #### Simulation function
 
-#### Run simulation for all values of mu
+#### Simulation for mu = 0
 
-#### Power plot and comments
+#### Simulation for mu = 1 to 6
 
-#### Average estimate plots and comments
+#### Power plot
+
+#### Average estimate plots
